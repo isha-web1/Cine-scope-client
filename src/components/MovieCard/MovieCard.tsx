@@ -25,7 +25,7 @@ export function MovieCard({ movie }: { movie: TMovie }) {
         </CardContent>
       </Link>
       <CardFooter className="p-4 border-t border-gray-700">
-        <RatingModal name={movie?.title} />
+        <RatingModal movie={movie} />
       </CardFooter>
     </Card>
   );
