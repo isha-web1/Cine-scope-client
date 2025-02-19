@@ -23,9 +23,52 @@ export const baseApi = createApi({
         }
       },
       invalidatesTags:['movies']
-    })
+    }),
+    getSingleMovie : builder.query({
+      query : (slug)=>({
+        method : 'GET',
+        url : `/movies/${slug}`
+      }),
+      providesTags: ["movies"],
+    }),
+
+    getMovieDetailsAndReviews: builder.query({
+      queryFn: async (slug: string): Promise<any> => {
+        try {
+          const [movieResponse, reviewsResponse] = await Promise.all([
+            fetch(`http://localhost:5000/api/movies/${slug}`),
+            fetch(`http://localhost:5000/api/movies/${slug}/reviews`),
+          ]);
+
+          if (!movieResponse.ok || !reviewsResponse.ok) {
+            throw new Error("Network response was not ok.");
+          }
+          const [movieData, reviewsData] = await Promise.all([
+            movieResponse.json(),
+            reviewsResponse.json(),
+          ]);
+
+          // Combine results
+          return {
+            data: {
+              movie: movieData,
+              reviews: reviewsData,
+            },
+          };
+        } catch (error) {
+          return error;
+        }
+      },
+    }),
+    
   }),
 })
 
 
-export const {useGetMoviesQuery, useAddRatingMutation} = baseApi;
+export const {
+  useGetMoviesQuery,
+   useAddRatingMutation,
+    useGetSingleMovieQuery,
+    // useGetMovieReviewsQuery,
+    useGetMovieDetailsAndReviewsQuery,
+  } = baseApi;
