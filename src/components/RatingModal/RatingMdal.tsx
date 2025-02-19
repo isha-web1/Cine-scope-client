@@ -13,16 +13,31 @@ import Rating from "react-rating";
 import { FieldValues, useForm } from "react-hook-form";
 import { useState } from "react";
 import { TMovie } from "@/types";
+import { useAddRatingMutation } from "@/redux/api/api";
+import { toast } from "sonner";
 
 
 
 export function RatingModal({ movie }: {movie:TMovie}) {
   const { register, handleSubmit } = useForm();
   const [ratingValue, setRatingValue] = useState(0);
-
-  const onSubmit = (data: FieldValues) => {
-    console.log({ ...data, rating: ratingValue });
+  const [addRating] = useAddRatingMutation()
+  const onSubmit = async (values: FieldValues) => {
+    const data = {
+      ...values,rating: ratingValue, movie: movie?._id
+    }
+    const slug = movie?.slug;
+    console.log(data)
+    try{
+      const res = await addRating({data, slug}).unwrap()
+      if(res?.success){
+        toast.success(res?.message)
+      }
+    }catch(err){
+      console.log(err)
+    }
   };
+  
 
   return (
     <Dialog>
